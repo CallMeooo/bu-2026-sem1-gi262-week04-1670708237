@@ -64,15 +64,20 @@ namespace Solution
                 LinkedListNode<GameObject> lastNode = Parade.First;
                 GameObject lastPart = lastNode.Value;
                 // 3. ลบส่วนสุดท้ายออกจาก LinkedList
-                Parade.RemoveFirst();
+                Parade.RemoveLast();
                 // 5. กำหนดตำแหน่งและทิศทางของส่วนที่ถูกย้ายมาใหม่
                 // ให้ไปอยู่ที่ตำแหน่งของส่วนหัวงู (ซึ่งเพิ่งเคลื่อนที่ไปเมื่อครู่)
                 int toX = 0;
                 int toY = 0;
 
-                moveDirection = RandomizeDirection();
-                toX = (int)(firstPart.transform.position.x + moveDirection.x);
-                toY = (int)(firstPart.transform.position.y + moveDirection.y);
+                bool isCollide = true;
+                while (isCollide == true)
+                {
+                    moveDirection = RandomizeDirection();
+                    toX = (int)(firstPart.transform.position.x + moveDirection.x);
+                    toY = (int)(firstPart.transform.position.y + moveDirection.y);
+                    isCollide = IsCollision(toX, toY);
+                }
                 //6. เคลื่อนที่
                 mapGenerator.mapdata[positionX, positionY] = null;
                 positionX = toX;
@@ -82,7 +87,7 @@ namespace Solution
                 mapGenerator.mapdata[positionX, positionY] = this;
                 // 7. เพิ่มส่วนนั้นกลับเข้าไปเป็นส่วนที่สองของ LinkedList
                 // (ซึ่งก็คือส่วนแรกของลำตัว)
-
+                Parade.AddFirst(lastNode);
                 // รอตามเวลาที่กำหนดก่อนการเคลื่อนที่ครั้งต่อไป
                 yield return new WaitForSeconds(moveInterval);
             }
@@ -90,7 +95,10 @@ namespace Solution
         private bool IsCollision(int x, int y)
         {
             // 4. ตรวจสอบสิ่งกีดขวาง
-            
+            if(HasPlacement(x, y))
+            {
+                return true;
+            }
             return false;
         }
         void Move(Vector2 direction,GameObject targetMove)
